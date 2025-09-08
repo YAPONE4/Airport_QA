@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    kotlin("kapt")
+    id("com.google.devtools.ksp") version "2.2.0-2.0.2"
+    kotlin("plugin.serialization") version "2.2.0"
 }
 
 android {
@@ -73,5 +74,5 @@ dependencies {
     implementation ("androidx.navigation:navigation-ui-ktx:2.8.3")
     implementation ("androidx.room:room-runtime:2.7.2")
     implementation ("androidx.room:room-ktx:2.7.2")
-    kapt("androidx.room:room-compiler:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
 }
