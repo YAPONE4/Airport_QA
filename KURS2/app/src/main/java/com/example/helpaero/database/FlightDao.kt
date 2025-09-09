@@ -18,6 +18,9 @@ interface FlightDao {
     @Insert
     suspend fun insertFlights(flights: List<FlightDB>)
 
+    @Query("DELETE FROM flights WHERE number = :number")
+    suspend fun deleteFlight(number: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUserFlightCrossRef(ref: UserFlightCrossRefDB)
 }

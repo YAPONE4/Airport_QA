@@ -1,10 +1,12 @@
 package com.example.helpaero
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.helpaero.database.AppDatabase
 import com.example.helpaero.database.UserFlightCrossRefDB
@@ -25,11 +27,18 @@ class FlightDetailActivity : AppCompatActivity() {
         val time = intent.getStringExtra("flight_time") ?: ""
         val destination = intent.getStringExtra("flight_destination") ?: ""
 
+        val btnBook = findViewById<Button>(R.id.btnBook)
+        val btnDelete = findViewById<Button>(R.id.btnDelete)
+
+        val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("admin", false) == true) {
+            btnBook.isVisible = false
+            btnDelete.isVisible = true
+        }
+
         findViewById<TextView>(R.id.tvFlightDetailNumber).text = number
         findViewById<TextView>(R.id.tvFlightDetailTime).text = time
         findViewById<TextView>(R.id.tvFlightDetailDestination).text = destination
-
-        val btnBook = findViewById<Button>(R.id.btnBook)
 
         btnBook.setOnClickListener {
             val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
@@ -39,14 +48,26 @@ class FlightDetailActivity : AppCompatActivity() {
             if (userId != -1L) {
                 android.util.Log.d("FlightDetailActivity", "Прошло проверку")
                 lifecycleScope.launch(Dispatchers.IO) {
-                    // получаем flightId из базы по номеру
                     val flightDb = db.flightDao().getFlightByNumber(number)
                     android.util.Log.d("FlightDetailActivity", flightDb.toString())
                     if (flightDb != null) {
                         db.userDao().insertUserFlights(
                             listOf(UserFlightCrossRefDB(userId = userId, flightId = flightDb.id))
                         )
+                        startActivity(Intent(this@FlightDetailActivity, FlightsActivity::class.java))
+                        finish()
                     }
+                }
+            }
+        }
+
+        btnDelete.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val flightDb = db.flightDao().getFlightByNumber(number)
+                if (flightDb != null) {
+                    db.flightDao().deleteFlight(number)
+                    startActivity(Intent(this@FlightDetailActivity, FlightsActivity::class.java))
+                    finish()
                 }
             }
         }
