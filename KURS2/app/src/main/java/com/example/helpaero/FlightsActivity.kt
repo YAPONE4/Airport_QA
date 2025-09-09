@@ -47,20 +47,9 @@ class FlightsActivity : AppCompatActivity() {
 
         db = AppDatabase.getDatabase(this)
 
-        // Подгружаем рейсы из БД
         GlobalScope.launch(Dispatchers.IO) {
-            // Если базы ещё нет, можно вставить начальные рейсы
-            if (db.flightDao().getAllFlights().isEmpty()) {
-                db.flightDao().insertFlights(listOf<FlightDB>(
-                    FlightDB(number = "SU123", time = "08:30", destination = "Москва → Санкт-Петербург"),
-                    FlightDB(number = "AF456", time = "10:00", destination = "Париж → Москва"),
-                    FlightDB(number = "BA789", time = "12:45", destination = "Лондон → Санкт-Петербург")
-                    )
-                )
-            }
-
             val flightsFromDb = db.flightDao().getAllFlights().map {
-                Flight(it.number, it.time, it.destination) // конвертируем в твой класс Flight
+                Flight(it.number, it.time, it.destination)
             }
 
 
@@ -111,12 +100,10 @@ class FlightsActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when(menuItem.itemId) {
                 R.id.nav_about_app -> {
-                    // открыть Activity "О программе"
-                    //startActivity(Intent(this, AboutAppActivity::class.java))
+                    startActivity(Intent(this, AboutAppActivity::class.java))
                 }
                 R.id.nav_about_author -> {
-                    // открыть Activity "Об авторе"
-                    //startActivity(Intent(this, AboutAuthorActivity::class.java))
+                    startActivity(Intent(this, AboutAuthorActivity::class.java))
                 }
                 R.id.nav_logout -> {
                     val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)

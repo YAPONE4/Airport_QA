@@ -55,7 +55,6 @@ class MyFlightsActivity : AppCompatActivity() {
             }
         }
 
-        // Нижняя навигация
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.selectedItemId = R.id.nav_my_flights
         bottomNav.setOnItemSelectedListener { item ->
@@ -70,10 +69,16 @@ class MyFlightsActivity : AppCompatActivity() {
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
         navigationView.setNavigationItemSelectedListener {
             when(it.itemId) {
-                R.id.nav_about_app -> {}
-                R.id.nav_about_author -> {}
+                R.id.nav_about_app -> {
+                    startActivity(Intent(this, AboutAppActivity::class.java))
+                }
+                R.id.nav_about_author -> {
+                    startActivity(Intent(this, AboutAuthorActivity::class.java))
+                }
                 R.id.nav_logout -> {
+                    val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     prefs.edit().clear().apply()
+                    startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
             }

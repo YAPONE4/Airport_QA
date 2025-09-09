@@ -86,9 +86,18 @@ class MapActivity : AppCompatActivity() {
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
         navigationView.setNavigationItemSelectedListener {
             when(it.itemId) {
-                R.id.nav_about_app -> {}
-                R.id.nav_about_author -> {}
-                R.id.nav_logout -> { prefs.edit().clear().apply(); finish() }
+                R.id.nav_about_app -> {
+                    startActivity(Intent(this, AboutAppActivity::class.java))
+                }
+                R.id.nav_about_author -> {
+                    startActivity(Intent(this, AboutAuthorActivity::class.java))
+                }
+                R.id.nav_logout -> {
+                    val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                    prefs.edit().clear().apply()
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true

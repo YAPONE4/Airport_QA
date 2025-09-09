@@ -33,9 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         val db = AppDatabase.getDatabase(this)
         val userDao = db.userDao()
-        lifecycleScope.launch {
-            db.userDao().insert(UserDB(login = "admin", password = "1111", admin = true))
-        }
 
         btnLogin.setOnClickListener {
             val login = etLogin.text.toString().trim()

@@ -27,14 +27,12 @@ class ManageFlightsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_flights)
 
-        // Инициализация Drawer
         drawerLayout = findViewById(R.id.drawerLayout)
         topAppBar = findViewById(R.id.topAppBar)
         topAppBar.setNavigationOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-        // Работа с базой без изменений
         db = AppDatabase.getDatabase(this)
 
         val etFlightNumber = findViewById<EditText>(R.id.etFlightNumber)
@@ -68,7 +66,6 @@ class ManageFlightsActivity : AppCompatActivity() {
             etCityTo.text.clear()
         }
 
-        // Нижняя навигация
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.selectedItemId = R.id.nav_manage_flights
         bottomNav.menu.findItem(R.id.nav_manage_flights).isVisible = true
@@ -82,15 +79,20 @@ class ManageFlightsActivity : AppCompatActivity() {
             }
         }
 
-        // NavigationView
         val navigationView = findViewById<NavigationView>(R.id.navigationView)
         val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when(menuItem.itemId) {
-                R.id.nav_about_app -> { /* открыть AboutAppActivity */ }
-                R.id.nav_about_author -> { /* открыть AboutAuthorActivity */ }
+                R.id.nav_about_app -> {
+                    startActivity(Intent(this, AboutAppActivity::class.java))
+                }
+                R.id.nav_about_author -> {
+                    startActivity(Intent(this, AboutAuthorActivity::class.java))
+                }
                 R.id.nav_logout -> {
+                    val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     prefs.edit().clear().apply()
+                    startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }
             }

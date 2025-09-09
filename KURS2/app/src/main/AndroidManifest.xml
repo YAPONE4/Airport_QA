@@ -29,6 +29,8 @@
         <activity android:name=".MapActivity"/>
         <activity android:name=".FlightDetailActivity"/>
         <activity android:name=".ManageFlightsActivity"/>
+        <activity android:name=".AboutAppActivity"/>
+        <activity android:name=".AboutAuthorActivity"/>
     </application>
 
 </manifest>
