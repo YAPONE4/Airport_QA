@@ -27,6 +27,7 @@
         <activity android:name=".RegisterActivity"/>
         <activity android:name=".MyFlightsActivity"/>
         <activity android:name=".MapActivity"/>
+        <activity android:name=".FlightDetailActivity"/>
     </application>
 
 </manifest>

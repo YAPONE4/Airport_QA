@@ -1,5 +1,6 @@
 package com.example.helpaero
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,7 +49,13 @@ class FlightsActivity : AppCompatActivity() {
             }
 
             withContext(Dispatchers.Main) {
-                rvFlights.adapter = FlightsAdapter(flightsFromDb)
+                rvFlights.adapter = FlightsAdapter(flightsFromDb) { flight ->
+                    val intent = Intent(this@FlightsActivity, FlightDetailActivity::class.java)
+                    intent.putExtra("flight_number", flight.number)
+                    intent.putExtra("flight_time", flight.time)
+                    intent.putExtra("flight_destination", flight.destination)
+                    startActivity(intent)
+                }
             }
         }
 

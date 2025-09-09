@@ -12,6 +12,9 @@ interface FlightDao {
     @Query("SELECT * FROM flights")
     suspend fun getAllFlights(): List<FlightDB>
 
+    @Query("SELECT * FROM flights WHERE number = :number LIMIT 1")
+    suspend fun getFlightByNumber(number: String): FlightDB?
+
     @Insert
     suspend fun insertFlights(flights: List<FlightDB>)
 

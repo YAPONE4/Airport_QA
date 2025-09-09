@@ -1,11 +1,13 @@
 package com.example.helpaero
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.helpaero.FlightsActivity
 import com.example.helpaero.data.Flight
 import com.example.helpaero.database.AppDatabase
 import com.example.helpaero.database.FlightDB
@@ -40,41 +42,23 @@ class MyFlightsActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            android.util.Log.d("MyFlightsActivity", "Корутина стартовала")
             var userWithFlights = withContext(Dispatchers.IO) {
                 db.userDao().getUserWithFlights(userId)
             }
 
-            if (true) {
-                withContext(Dispatchers.IO) {
-                    val sampleFlights = listOf(
-                        FlightDB(number = "SU123", time = "08:30", destination = "Москва → Санкт-Петербург"),
-                        FlightDB(number = "AF456", time = "10:00", destination = "Париж → Москва"),
-                        FlightDB(number = "BA789", time = "12:45", destination = "Лондон → Санкт-Петербург")
-                    )
-
-                    // Добавляем рейсы (если их ещё нет)
-                    android.util.Log.d("MyFlightsActivity", "AAAA" + sampleFlights.toString())
-
-                    db.flightDao().insertFlights(sampleFlights)
-
-                    // Привязываем пользователя к рейсам
-                    val crossRefs = sampleFlights.map { flight ->
-                        UserFlightCrossRefDB(userId = userId, flightId = flight.id)
-                    }
-                    android.util.Log.d("MyFlightsActivity", "BBBB" + crossRefs.toString())
-                    db.userDao().insertUserFlights(crossRefs)
-                }
-
+            withContext(Dispatchers.IO) {
                 userWithFlights = withContext(Dispatchers.IO) {
                     db.userDao().getUserWithFlights(userId)
                 }
             }
 
+
             // преобразуем FlightDB в UI-модель Flight
             val flights = userWithFlights?.flights?.map {
                 Flight(it.number, it.time, it.destination)
             } ?: emptyList()
+
+            android.util.Log.d("MyFlightsActivity", flights.toString())
 
             adapter = FlightsAdapter(flights)
             recyclerView.adapter = adapter
@@ -85,11 +69,11 @@ class MyFlightsActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_map -> {
-                    startActivity(android.content.Intent(this, MapActivity::class.java))
+                    startActivity(android.content.Intent(this@MyFlightsActivity, MapActivity::class.java))
                     true
                 }
                 R.id.nav_flights -> {
-                    startActivity(android.content.Intent(this, FlightsActivity::class.java))
+                    startActivity(android.content.Intent(this@MyFlightsActivity, FlightsActivity::class.java))
                     true
                 }
                 R.id.nav_my_flights -> {

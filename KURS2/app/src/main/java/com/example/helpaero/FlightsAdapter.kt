@@ -4,8 +4,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.helpaero.data.Flight
 import com.example.helpaero.database.FlightDB
 
-class FlightsAdapter(private val flights: List<Flight>) :
-    RecyclerView.Adapter<FlightsAdapter.FlightViewHolder>() {
+class FlightsAdapter(
+    private val flights: List<Flight>,
+    private val onItemClick: ((Flight) -> Unit)? = null
+) : RecyclerView.Adapter<FlightsAdapter.FlightViewHolder>() {
 
     class FlightViewHolder(itemView: android.view.View) : RecyclerView.ViewHolder(itemView) {
         val number: android.widget.TextView = itemView.findViewById(R.id.tvFlightNumber)
@@ -24,6 +26,11 @@ class FlightsAdapter(private val flights: List<Flight>) :
         holder.number.text = flight.number
         holder.time.text = flight.time
         holder.destination.text = flight.destination
+
+        holder.itemView.setOnClickListener {
+            if (onItemClick != null)
+                onItemClick(flight)
+        }
     }
 
     override fun getItemCount(): Int = flights.size
