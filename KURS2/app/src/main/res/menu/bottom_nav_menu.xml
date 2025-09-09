@@ -14,6 +14,11 @@
     <item
         android:id="@+id/nav_my_flights"
         android:title="Мои рейсы"
-        android:icon="@android:drawable/ic_menu_agenda" />
-
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:visible="true"/>
+    <item
+        android:id="@+id/nav_manage_flights"
+        android:title="Управление рейсами"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:visible="false"/>
 </menu>

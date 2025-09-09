@@ -1,5 +1,6 @@
 package com.example.helpaero
 
+import android.content.Context
 import android.graphics.Matrix
 import android.os.Bundle
 import android.view.MotionEvent
@@ -22,6 +23,8 @@ class MapActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+
+        val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
         imageView = findViewById(R.id.imageViewMap)
         imageView.scaleType = ImageView.ScaleType.MATRIX
@@ -61,15 +64,27 @@ class MapActivity : AppCompatActivity() {
         }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        bottomNav.selectedItemId = R.id.nav_map
+        if (prefs.getBoolean("admin", false) == true) {
+            bottomNav.menu.findItem(R.id.nav_manage_flights).isVisible = true
+            bottomNav.menu.findItem(R.id.nav_my_flights).isVisible = false
+        }
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_map -> true
                 R.id.nav_flights -> {
                     startActivity(android.content.Intent(this, FlightsActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.nav_my_flights -> {
                     startActivity(android.content.Intent(this, MyFlightsActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.nav_manage_flights -> {
+                    startActivity(android.content.Intent(this, ManageFlightsActivity::class.java))
+                    finish()
                     true
                 }
                 else -> false

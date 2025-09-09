@@ -1,5 +1,6 @@
 package com.example.helpaero
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,8 @@ class FlightsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flights)
 
+        val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+
         rvFlights = findViewById(R.id.rvFlights)
         rvFlights.layoutManager = LinearLayoutManager(this)
 
@@ -48,6 +51,8 @@ class FlightsActivity : AppCompatActivity() {
                 Flight(it.number, it.time, it.destination) // конвертируем в твой класс Flight
             }
 
+
+
             withContext(Dispatchers.Main) {
                 rvFlights.adapter = FlightsAdapter(flightsFromDb) { flight ->
                     val intent = Intent(this@FlightsActivity, FlightDetailActivity::class.java)
@@ -60,15 +65,29 @@ class FlightsActivity : AppCompatActivity() {
         }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        bottomNav.selectedItemId = R.id.nav_flights
+        if (prefs.getBoolean("admin", false) == true) {
+            bottomNav.menu.findItem(R.id.nav_manage_flights).isVisible = true
+            bottomNav.menu.findItem(R.id.nav_my_flights).isVisible = false
+        }
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_map -> {
                     startActivity(android.content.Intent(this, MapActivity::class.java))
+                    finish()
                     true
                 }
-                R.id.nav_flights -> true
+                R.id.nav_flights -> {
+                    true
+                }
                 R.id.nav_my_flights -> {
                     startActivity(android.content.Intent(this, MyFlightsActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.nav_manage_flights -> {
+                    startActivity(android.content.Intent(this, ManageFlightsActivity::class.java))
+                    finish()
                     true
                 }
                 else -> false

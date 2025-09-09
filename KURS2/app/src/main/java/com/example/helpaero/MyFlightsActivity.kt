@@ -66,14 +66,17 @@ class MyFlightsActivity : AppCompatActivity() {
 
         // нижняя навигация
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        bottomNav.selectedItemId = R.id.nav_my_flights
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_map -> {
                     startActivity(android.content.Intent(this@MyFlightsActivity, MapActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.nav_flights -> {
                     startActivity(android.content.Intent(this@MyFlightsActivity, FlightsActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.nav_my_flights -> {

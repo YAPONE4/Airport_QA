@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class UserDB(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val login: String,
-    val password: String
+    val password: String,
+    val admin: Boolean = false
 )

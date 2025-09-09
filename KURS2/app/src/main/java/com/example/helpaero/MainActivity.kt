@@ -12,6 +12,8 @@ import com.example.helpaero.database.AppDatabase
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
 import com.example.helpaero.database.FlightDB
+import com.example.helpaero.database.UserDB
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +33,9 @@ class MainActivity : AppCompatActivity() {
 
         val db = AppDatabase.getDatabase(this)
         val userDao = db.userDao()
+        lifecycleScope.launch {
+            db.userDao().insert(UserDB(login = "admin", password = "1111", admin = true))
+        }
 
         btnLogin.setOnClickListener {
             val login = etLogin.text.toString().trim()
@@ -43,11 +48,11 @@ class MainActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 val user = userDao.getUser(login, password)
+                val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                 if (user != null) {
-                    val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
                     prefs.edit() {
                         putLong("user_id", user.id)
-                            .putString("login", user.login)
+                            .putString("login", user.login).putBoolean("admin", user.admin)
                     }
 
                     runOnUiThread {

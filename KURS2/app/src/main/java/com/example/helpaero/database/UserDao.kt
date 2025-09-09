@@ -16,6 +16,9 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE id = :userId")
     suspend fun getUserWithFlights(userId: Long): UserWithFlights?
 
+    @Query("SELECT admin FROM users WHERE id = :userId")
+    suspend fun getUserPermissions(userId: Long): Boolean?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUserFlights(crossRefs: List<UserFlightCrossRefDB>)
 }
