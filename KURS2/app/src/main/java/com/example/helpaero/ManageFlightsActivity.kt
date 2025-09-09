@@ -7,9 +7,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import com.example.helpaero.database.AppDatabase
 import com.example.helpaero.database.FlightDB
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -17,11 +20,21 @@ import kotlinx.coroutines.launch
 class ManageFlightsActivity : AppCompatActivity() {
 
     private lateinit var db: AppDatabase
+    private lateinit var topAppBar: MaterialToolbar
+    private lateinit var drawerLayout: androidx.drawerlayout.widget.DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_flights)
 
+        // Инициализация Drawer
+        drawerLayout = findViewById(R.id.drawerLayout)
+        topAppBar = findViewById(R.id.topAppBar)
+        topAppBar.setNavigationOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        // Работа с базой без изменений
         db = AppDatabase.getDatabase(this)
 
         val etFlightNumber = findViewById<EditText>(R.id.etFlightNumber)
@@ -42,7 +55,6 @@ class ManageFlightsActivity : AppCompatActivity() {
             }
 
             val destination = "$cityFrom → $cityTo"
-
             val flight = FlightDB(number = number, time = time, destination = destination)
 
             GlobalScope.launch(Dispatchers.IO) {
@@ -50,32 +62,40 @@ class ManageFlightsActivity : AppCompatActivity() {
             }
 
             Toast.makeText(this, "Рейс добавлен!", Toast.LENGTH_SHORT).show()
-
             etFlightNumber.text.clear()
             etFlightTime.text.clear()
             etCityFrom.text.clear()
             etCityTo.text.clear()
         }
 
+        // Нижняя навигация
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.selectedItemId = R.id.nav_manage_flights
         bottomNav.menu.findItem(R.id.nav_manage_flights).isVisible = true
         bottomNav.menu.findItem(R.id.nav_my_flights).isVisible = false
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_map -> {
-                    startActivity(Intent(this, MapActivity::class.java))
-                    finish()
-                    true
-                }
-                R.id.nav_flights -> {
-                    startActivity(Intent(this, FlightsActivity::class.java))
-                    finish()
-                    true
-                }
+                R.id.nav_map -> { startActivity(Intent(this, MapActivity::class.java)); finish(); true }
+                R.id.nav_flights -> { startActivity(Intent(this, FlightsActivity::class.java)); finish(); true }
                 R.id.nav_manage_flights -> true
                 else -> false
             }
+        }
+
+        // NavigationView
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when(menuItem.itemId) {
+                R.id.nav_about_app -> { /* открыть AboutAppActivity */ }
+                R.id.nav_about_author -> { /* открыть AboutAuthorActivity */ }
+                R.id.nav_logout -> {
+                    prefs.edit().clear().apply()
+                    finish()
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
     }
 }

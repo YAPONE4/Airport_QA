@@ -29,6 +29,7 @@ class FlightDetailActivity : AppCompatActivity() {
 
         val btnBook = findViewById<Button>(R.id.btnBook)
         val btnDelete = findViewById<Button>(R.id.btnDelete)
+        val btnBack = findViewById<Button>(R.id.btnBack)
 
         val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         if (prefs.getBoolean("admin", false) == true) {
@@ -70,6 +71,11 @@ class FlightDetailActivity : AppCompatActivity() {
                     finish()
                 }
             }
+        }
+
+        btnBack.setOnClickListener {
+            startActivity(Intent(this@FlightDetailActivity, FlightsActivity::class.java))
+            finish()
         }
     }
 }

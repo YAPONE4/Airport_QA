@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helpaero.FlightsAdapter
@@ -13,7 +15,9 @@ import com.example.helpaero.R
 import com.example.helpaero.data.Flight
 import com.example.helpaero.database.AppDatabase
 import com.example.helpaero.database.FlightDB
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -23,10 +27,18 @@ class FlightsActivity : AppCompatActivity() {
 
     private lateinit var rvFlights: RecyclerView
     private lateinit var db: AppDatabase
+    private lateinit var topAppBar: MaterialToolbar
+    private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flights)
+
+        drawerLayout = findViewById(R.id.drawerLayout)
+        topAppBar = findViewById(R.id.topAppBar)
+        topAppBar.setNavigationOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
 
         val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
@@ -92,6 +104,29 @@ class FlightsActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+
+
+        val navigationView = findViewById<NavigationView>(R.id.navigationView)
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when(menuItem.itemId) {
+                R.id.nav_about_app -> {
+                    // открыть Activity "О программе"
+                    //startActivity(Intent(this, AboutAppActivity::class.java))
+                }
+                R.id.nav_about_author -> {
+                    // открыть Activity "Об авторе"
+                    //startActivity(Intent(this, AboutAuthorActivity::class.java))
+                }
+                R.id.nav_logout -> {
+                    val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                    prefs.edit().clear().apply()
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
     }
 }
