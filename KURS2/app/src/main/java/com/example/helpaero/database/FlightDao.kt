@@ -1,5 +1,8 @@
+package com.example.helpaero.database
+
 import androidx.room.*
 import com.example.helpaero.database.FlightDB
+import com.example.helpaero.database.UserFlightCrossRefDB
 
 @Dao
 interface FlightDao {
@@ -9,6 +12,9 @@ interface FlightDao {
     @Query("SELECT * FROM flights")
     suspend fun getAllFlights(): List<FlightDB>
 
-    @Query("SELECT * FROM flights WHERE userId = :userId")
-    suspend fun getFlightsForUser(userId: Int): List<FlightDB>
+    @Insert
+    suspend fun insertFlights(flights: List<FlightDB>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUserFlightCrossRef(ref: UserFlightCrossRefDB)
 }

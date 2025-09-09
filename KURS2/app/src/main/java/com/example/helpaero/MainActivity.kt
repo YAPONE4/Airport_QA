@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.helpaero.database.AppDatabase
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
+import com.example.helpaero.database.FlightDB
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
 
         etLogin = findViewById(R.id.etLogin)
         etPassword = findViewById(R.id.etPassword)
@@ -42,12 +45,11 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 val user = userDao.getUser(login, password)
                 if (user != null) {
-                    // Сохраняем данные в SharedPreferences
                     val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-                    prefs.edit()
-                        .putInt("user_id", user.id)
-                        .putString("login", user.login)
-                        .apply()
+                    prefs.edit() {
+                        putLong("user_id", user.id)
+                            .putString("login", user.login)
+                    }
 
                     runOnUiThread {
                         Toast.makeText(this@MainActivity, "Добро пожаловать, ${user.login}!", Toast.LENGTH_SHORT).show()

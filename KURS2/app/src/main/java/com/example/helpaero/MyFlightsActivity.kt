@@ -1,17 +1,25 @@
 package com.example.helpaero
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helpaero.data.Flight
+import com.example.helpaero.database.AppDatabase
+import com.example.helpaero.database.FlightDB
+import com.example.helpaero.database.UserFlightCrossRefDB
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MyFlightsActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FlightsAdapter
+    private lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,10 +28,57 @@ class MyFlightsActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewMyFlights)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // создаём список случайных рейсов-заглушек
-        val flights = generateRandomFlights()
-        adapter = FlightsAdapter(flights)
-        recyclerView.adapter = adapter
+        db = AppDatabase.getDatabase(this)
+
+        // Достаём текущего пользователя из SharedPreferences
+        val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = prefs.getLong("user_id", -1)
+
+        if (userId == -1L) {
+            // если не нашли — можно редиректить на LoginActivity или выдать заглушку
+            return
+        }
+
+        lifecycleScope.launch {
+            android.util.Log.d("MyFlightsActivity", "Корутина стартовала")
+            var userWithFlights = withContext(Dispatchers.IO) {
+                db.userDao().getUserWithFlights(userId)
+            }
+
+            if (true) {
+                withContext(Dispatchers.IO) {
+                    val sampleFlights = listOf(
+                        FlightDB(number = "SU123", time = "08:30", destination = "Москва → Санкт-Петербург"),
+                        FlightDB(number = "AF456", time = "10:00", destination = "Париж → Москва"),
+                        FlightDB(number = "BA789", time = "12:45", destination = "Лондон → Санкт-Петербург")
+                    )
+
+                    // Добавляем рейсы (если их ещё нет)
+                    android.util.Log.d("MyFlightsActivity", "AAAA" + sampleFlights.toString())
+
+                    db.flightDao().insertFlights(sampleFlights)
+
+                    // Привязываем пользователя к рейсам
+                    val crossRefs = sampleFlights.map { flight ->
+                        UserFlightCrossRefDB(userId = userId, flightId = flight.id)
+                    }
+                    android.util.Log.d("MyFlightsActivity", "BBBB" + crossRefs.toString())
+                    db.userDao().insertUserFlights(crossRefs)
+                }
+
+                userWithFlights = withContext(Dispatchers.IO) {
+                    db.userDao().getUserWithFlights(userId)
+                }
+            }
+
+            // преобразуем FlightDB в UI-модель Flight
+            val flights = userWithFlights?.flights?.map {
+                Flight(it.number, it.time, it.destination)
+            } ?: emptyList()
+
+            adapter = FlightsAdapter(flights)
+            recyclerView.adapter = adapter
+        }
 
         // нижняя навигация
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
@@ -44,20 +99,5 @@ class MyFlightsActivity : AppCompatActivity() {
                 else -> false
             }
         }
-    }
-
-
-    private fun generateRandomFlights(): List<Flight> {
-        val destinations = listOf("Москва", "Париж", "Берлин", "Лондон", "Рим", "Нью-Йорк")
-        val flights = mutableListOf<Flight>()
-
-        repeat(5) {
-            val number = "SU${Random.nextInt(100, 999)}"
-            val time = "${Random.nextInt(0, 3).toString().padStart(2, '0')}:${Random.nextInt(0, 59).toString().padStart(2, '0')}"
-            val destination = destinations.random()
-            flights.add(Flight(number, time, destination))
-        }
-
-        return flights
     }
 }

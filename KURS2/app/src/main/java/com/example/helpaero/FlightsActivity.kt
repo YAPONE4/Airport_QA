@@ -4,35 +4,54 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.helpaero.FlightsAdapter
+import com.example.helpaero.MapActivity
+import com.example.helpaero.MyFlightsActivity
+import com.example.helpaero.R
 import com.example.helpaero.data.Flight
+import com.example.helpaero.database.AppDatabase
+import com.example.helpaero.database.FlightDB
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FlightsActivity : AppCompatActivity() {
+
+    private lateinit var rvFlights: RecyclerView
+    private lateinit var db: AppDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flights)
 
-        // RecyclerView
-        val rvFlights = findViewById<RecyclerView>(R.id.rvFlights)
+        rvFlights = findViewById(R.id.rvFlights)
         rvFlights.layoutManager = LinearLayoutManager(this)
 
-        // Заглушки рейсов
-        val sampleFlights = listOf(
-            Flight("SU123", "08:30", "Москва → Санкт-Петербург"),
-            Flight("AF456", "10:00", "Париж → Москва"),
-            Flight("BA789", "12:45", "Лондон → Санкт-Петербург"),
-            Flight("EK321", "15:20", "Дубай → Москва"),
-            Flight("LH654", "18:00", "Франкфурт → Санкт-Петербург"),
-            Flight("SU123", "08:30", "Москва → Санкт-Петербург"),
-            Flight("AF456", "10:00", "Париж → Москва"),
-            Flight("BA789", "12:45", "Лондон → Санкт-Петербург"),
-            Flight("EK321", "15:20", "Дубай → Москва"),
-            Flight("LH654", "18:00", "Франкфурт → Санкт-Петербург")
-        )
+        db = AppDatabase.getDatabase(this)
 
-        rvFlights.adapter = FlightsAdapter(sampleFlights)
+        // Подгружаем рейсы из БД
+        GlobalScope.launch(Dispatchers.IO) {
+            // Если базы ещё нет, можно вставить начальные рейсы
+            if (db.flightDao().getAllFlights().isEmpty()) {
+                db.flightDao().insertFlights(listOf<FlightDB>(
+                    FlightDB(number = "SU123", time = "08:30", destination = "Москва → Санкт-Петербург"),
+                    FlightDB(number = "AF456", time = "10:00", destination = "Париж → Москва"),
+                    FlightDB(number = "BA789", time = "12:45", destination = "Лондон → Санкт-Петербург")
+                    )
+                )
+            }
 
-        // Нижняя панель (оставляем заглушки)
+            val flightsFromDb = db.flightDao().getAllFlights().map {
+                Flight(it.number, it.time, it.destination) // конвертируем в твой класс Flight
+            }
+
+            withContext(Dispatchers.Main) {
+                rvFlights.adapter = FlightsAdapter(flightsFromDb)
+            }
+        }
+
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -40,10 +59,7 @@ class FlightsActivity : AppCompatActivity() {
                     startActivity(android.content.Intent(this, MapActivity::class.java))
                     true
                 }
-                R.id.nav_flights -> {
-                    //startActivity(android.content.Intent(this, FlightsActivity::class.java))
-                    true
-                }
+                R.id.nav_flights -> true
                 R.id.nav_my_flights -> {
                     startActivity(android.content.Intent(this, MyFlightsActivity::class.java))
                     true

@@ -2,6 +2,7 @@ package com.example.helpaero
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helpaero.data.Flight
+import com.example.helpaero.database.FlightDB
 
 class FlightsAdapter(private val flights: List<Flight>) :
     RecyclerView.Adapter<FlightsAdapter.FlightViewHolder>() {

@@ -1,14 +1,13 @@
 package com.example.helpaero.database
 
-import FlightDao
-import UserDao
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
+import com.example.helpaero.data.Flight
 
 
-@Database(entities = [UserDB::class, FlightDB::class], version = 1)
+@Database(entities = [UserDB::class, FlightDB::class, UserFlightCrossRefDB::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun flightDao(): FlightDao
@@ -18,6 +17,7 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
+            context.deleteDatabase("airport_db")
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -29,4 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
     }
+
+
+
 }
