@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import android.content.Context
+import com.example.airportqa.database.PrepopulateCallback
 import com.example.helpaero.data.Flight
 
 
@@ -22,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "airport_db"
-                ).build()
+                ).addCallback(PrepopulateCallback(context)).build()
                 INSTANCE = instance
                 instance
             }
